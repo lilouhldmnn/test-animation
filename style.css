@@ -1,0 +1,12 @@
+body{
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  background-color: #0b0c10; /* Un noir/bleu très sombre (effet dark theme) */
+}
+
+canvas#scene{
+  width: 100%;
+  height: 100%; 
+  background-color: #0b0c10; /* Même couleur pour que tout soit unifié */
+}
