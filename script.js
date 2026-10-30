@@ -4,13 +4,12 @@ canvas.width = canvas.clientWidth;
 
 let ctx = canvas.getContext("2d");
 
-// tableau bulle
 let shapes = [];
 
-//  boucle pour créer 100 formes
+// boucle pour créer 100 formes
 for (let i = 0; i < 100; i++) {
   
-// taille entre 10 et 80 pixels
+  // taille entre 10 et 80 pixels
   let size = Math.random() * 80 + 10; 
 
   let color;
@@ -27,11 +26,14 @@ for (let i = 0; i < 100; i++) {
   let vx = (Math.random() - 0.5) * 3; 
   let vy = (Math.random() - 0.5) * 3;
 
+  let maxSpeed = Math.sqrt(vx * vx + vy * vy);
+
   let shape = {
     x: Math.random() * canvas.width,   
     y: Math.random() * canvas.height,  
     vx: vx,                      
     vy: vy,                      
+    maxSpeed: maxSpeed,
     size: size,                    
     color: color              
   };
@@ -39,10 +41,57 @@ for (let i = 0; i < 100; i++) {
   shapes.push(shape);
 }
 
+let isMouseDown = false;
+let mouseX = 0;
+let mouseY = 0;
+
+canvas.addEventListener('mousedown', (e) => {
+  isMouseDown = true;
+  updateMousePos(e);
+});
+
+canvas.addEventListener('mouseup', () => {
+  isMouseDown = false;
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  if (isMouseDown) {
+    updateMousePos(e);
+  }
+});
+
+window.addEventListener('mouseup', () => {
+  isMouseDown = false;
+});
+
+function updateMousePos(e) {
+  let rect = canvas.getBoundingClientRect();
+  mouseX = e.clientX - rect.left;
+  mouseY = e.clientY - rect.top;
+}
+
 function drawShapes() {
-  
+  let magnetRadius = 250; // Rayon d'action de l'aimant
+
   for (let i = 0; i < shapes.length; i++) {
     let s = shapes[i]; 
+
+    if (isMouseDown) {
+      let dx = mouseX - s.x;
+      let dy = mouseY - s.y;
+      let distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance < magnetRadius && distance > 0) {
+        s.vx += (dx / distance) * 0.2;
+        s.vy += (dy / distance) * 0.2;
+
+        let currentSpeed = Math.sqrt(s.vx * s.vx + s.vy * s.vy);
+        if (currentSpeed > s.maxSpeed) {
+          s.vx = (s.vx / currentSpeed) * s.maxSpeed;
+          s.vy = (s.vy / currentSpeed) * s.maxSpeed;
+        }
+      }
+    }
 
     if (s.x < 0 || s.x > canvas.width) {
       s.vx *= -1; 
